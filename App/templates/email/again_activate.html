@@ -1,0 +1,11 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>账户激活</title>
+</head>
+<body>
+<h2>欢迎{{ username }}进行账户激活!!!</h2>
+<h4>请点击右侧的激活链接 进行账户的激活操作 <a href="{{ url_for(endpoint,_external=True,token=token) }}" style="color:red;">激活</a></h4>
+</body>
+</html>

@@ -1,0 +1,11 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>账户激活</title>
+</head>
+<body>
+<h2>恭喜{{ username }}注册成功!!!</h2>
+<h4>您还差最后一步 就可以完成账户的注册操作 请点击右侧的激活链接 <a href="{{ url_for(endpoint,_external=True,token=token) }}" style="color:red;">激活</a></h4>
+</body>
+</html>

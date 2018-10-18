@@ -1,0 +1,82 @@
+{% extends 'common/base.html' %}
+{% block title %}
+    博客详情
+{% endblock %}
+{% block pagecontent %}
+    <div class="page-header"><h2>{{ data.title }}</h2></div>
+    {{ data.content|safe }}
+    <br>
+    <span style="float: right;">
+        <p style="cursor: pointer;" id="favorite" onclick="dofavorite({{ data.id }})">{% if current_user.is_authenticated %}{% if current_user.is_favorite(data.id) %}取消收藏{% else %}收藏{% endif %}{% else %}收藏{% endif %}</p>
+        <p>作者：<span style="font-size: 20px;font-weight: bold;">{{ data.user.username }}</span></p>
+        <p>发表于：<span
+                style="font-size: 20px;font-weight: bold;">{{ moment(data.timestamp).format('Y-M-D H:m:ss') }}</span></p>
+    </span>
+
+    <div class="page-header"><h2>评论内容</h2></div>
+
+    {% for p in comment %}
+        <div class="media">
+            <div class="media-left media-middle">
+                <img class="media-object" src="{{ url_for('static',filename='upload/'+p.user.icon) }}" alt="..."
+                     width="50" height="50" style="border-radius: 50px;">
+            </div>
+            <div class="media-body">
+                <h4 class="media-heading">
+                    {% if p.pid == data.id %}{{ p.user.username }}{% else %} {{ p.user.username }}回复了{{ p.pid|replay_username }} {% endif %}<span
+                        style="color: #ccc;font-size:14px;float: right;">{{ moment(p.timestamp).fromNow() }} <button class="btn btn-success btn-xs" onclick="replay({{ p.id }})">回复</button></span>
+                </h4>
+                {{ p.content|striptags }}
+            </div>
+        </div>
+        <form action="{{ url_for('posts.comment') }}" method="post" class="replay" id="replay{{ p.id }}">
+            {{ form.csrf_token }}
+            <input type="hidden" name="pid" value="{{ data.id }}">
+            <input type="hidden" name="rid" value="{{ p.id }}">
+            {{ form.content(class='form-control',style="resize:none;height:100px;",placeholder="请输入评论内容",required=True,minlength=5,maxlength=100) }}
+            <p>评论内容在5~100字之间</p>
+            <button type="submit" class="btn btn-success">发表回复</button>
+        </form>
+    {% endfor %}
+
+
+    <div class="page-header"><h2>发表评论</h2></div>
+    <form action="{{ url_for('posts.comment') }}" method="post">
+        {{ form.csrf_token }}
+        <input type="hidden" name="pid" value="{{ data.id }}">
+        {{ form.content(class='form-control',style="resize:none;height:100px;",placeholder="请输入评论内容",required=True,minlength=5,maxlength=100) }}
+        <p>评论内容在5~100字之间</p>
+        <button type="submit" class="btn btn-success">发表评论</button>
+    </form>
+{% endblock %}
+{% block scripts %}
+    {{ super() }}
+    <script>
+        $(function () {
+            $('.replay').hide()
+        });
+        {#    显示回复的文本框    #}
+        function replay(id){
+            $('.replay').hide();
+            $('#replay'+id).show();
+        }
+        {#    收藏的操作    #}
+        function dofavorite(pid) {
+            var node = $('#favorite');
+{#            alert(node.html());#}
+            $.get('{{ url_for("posts.doFavorite",_external=True) }}',{'pid':pid},function (data,status) {
+                if(data.code==200){
+                    if(node.html()=='收藏'){
+                        node.html('取消收藏')
+                    }else{
+                        node.html('收藏')
+                    }
+                }else{
+                    if(window.confirm('是否前去登录？')){
+                        window.location.href='{{ url_for('user.login') }}'
+                    }
+                }
+            })
+        }
+    </script>
+{% endblock %}

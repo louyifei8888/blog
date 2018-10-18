@@ -1,0 +1,29 @@
+{% extends 'common/base.html' %}
+{% block title %}
+    搜索...
+{% endblock %}
+{% block pagecontent %}
+    {#  搜索博客内容的展示  #}
+    {% for p in data %}
+        <div class="media">
+            <a href="{{ url_for('posts.posts_detail',pid=p.id) }}" style="color: #000;">
+                <div class="media-left media-middle">
+                    <img class="media-object" src="{{ url_for('static',filename='upload/'+p.user.icon) }}" alt="..."
+                         width="100" height="100" style="border-radius: 50px;">
+                </div>
+                <div class="media-body">
+                    <h4 class="media-heading">{{ p.title|replace_color(word)|safe }} <span
+                            style="color: #ccc;font-size:14px;float: right;">{{ moment(p.timestamp).fromNow() }}</span>
+                    </h4>
+                    {{ p.content|striptags|show_point|replace_color(word)|safe }}
+                </div>
+            </a>
+        </div>
+    {% endfor %}
+    {% if not data|length %}
+        <h3>抱歉 您搜索的内容不存在...</h3>
+    {% endif %}
+    {#  分页  #}
+    {% from 'common/page.html' import page %}
+    {{ page('main.search',pagination,search=word) }}
+{% endblock %}
